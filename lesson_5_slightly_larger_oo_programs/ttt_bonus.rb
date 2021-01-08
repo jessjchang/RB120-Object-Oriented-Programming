@@ -114,7 +114,7 @@ class Board
   private
 
   def valid_size?(num)
-    /\A[+]?\d+\z/.match(num) && num.to_i.odd? && num.to_i >= 3
+    /\A[+]?\d+\z/.match(num) && num.to_i.odd? && num.to_i >= 3 && num.to_i <= 31
   end
 
   def choose_size_message
@@ -122,13 +122,14 @@ class Board
     Please enter the size of the board you'd like to play on.
     > Enter an odd integer that will denote the number of rows/columns of the board.
     > For example, if you'd like to play on a 3 x 3 board, enter '3'.
+    > Board size can be between 3 and 31.
     MSG
   end
 
   def invalid_size_message
     <<~MSG
     Sorry, that's not a valid board size.
-    > Please enter an odd integer greater than or equal to 3:
+    > Please enter an odd integer greater than or equal to 3 and less than or equal to 31:
     MSG
   end
 
@@ -196,17 +197,13 @@ class Board
     self.winning_lines = find_winning_lines
   end
 
-  def whitespace
-    BLANK_ROW_SPACES
-  end
-
   def markings_square(key)
     "#{' ' * MARKING_ROW_SPACES}#{@squares[key]}#{' ' * MARKING_ROW_SPACES}"
   end
 
   def whitespace_row
     whitespace_row = ''
-    (size - 1).times { whitespace_row << "#{' ' * whitespace}|" }
+    (size - 1).times { whitespace_row << "#{' ' * BLANK_ROW_SPACES}|" }
     whitespace_row
   end
 
@@ -227,9 +224,9 @@ class Board
     border_row = ''
     size.times do |col|
       border_row << if col == size - 1
-                      '-' * whitespace
+                      '-' * BLANK_ROW_SPACES
                     else
-                      "#{'-' * whitespace}+"
+                      "#{'-' * BLANK_ROW_SPACES}+"
                     end
     end
     border_row
@@ -291,30 +288,14 @@ class RuleBoard < Board
 
   private
 
-  def whitespace
-    case size**2
-    when 0..9 then 5
-    when 10..99 then 7
-    when 100..999 then 9
-    end
-  end
-
-  def marker_spacing
-    case size**2
-    when 0..9 then 2
-    when 10..99 then 3
-    when 100..999 then 4
-    end
-  end
-
   def markings_square(key)
     case key.digits.size
     when 1
-      "#{' ' * marker_spacing}#{key}#{' ' * marker_spacing}"
+      "#{' ' * MARKING_ROW_SPACES}#{key}#{' ' * MARKING_ROW_SPACES}"
     when 2
-      "#{' ' * marker_spacing}#{key}#{' ' * (marker_spacing - 1)}"
+      "#{' ' * MARKING_ROW_SPACES}#{key}#{' ' * (MARKING_ROW_SPACES - 1)}"
     when 3
-      "#{' ' * (marker_spacing - 1)}#{key}#{' ' * (marker_spacing - 1)}"
+      "#{' ' * (MARKING_ROW_SPACES - 1)}#{key}#{' ' * (MARKING_ROW_SPACES - 1)}"
     end
   end
 end
