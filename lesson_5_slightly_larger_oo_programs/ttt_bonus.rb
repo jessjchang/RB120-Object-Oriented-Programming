@@ -365,9 +365,20 @@ class Player
     MSG
   end
 
+  def same_letter_message
+    <<~MSG
+    You and the Computer cannot have the same alphabetic letter as a marker.
+    > One marker has already been set as #{@@markers.first}.
+    MSG
+  end
+
+  def same_letter?(input)
+    @@markers.include?(input.downcase) || @@markers.include?(input.upcase)
+  end
+
   def valid_marker_input?(input)
     (/^[\S]{1}$/.match(input) || input.downcase == 'default') &&
-      !repeat_marker?(input)
+      !repeat_marker?(input) && !same_letter?(input)
   end
 
   def invalid_marker_message
@@ -392,6 +403,8 @@ class Player
       input = gets.chomp
       return confirmed_input_if_valid(input) if valid_marker_input?(input)
       prompt(repeat_marker_message) if repeat_marker?(input)
+      prompt(same_letter_message) if same_letter?(input) &&
+                                     !repeat_marker?(input)
       prompt(invalid_marker_message)
     end
   end
