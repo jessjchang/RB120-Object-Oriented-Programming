@@ -336,7 +336,7 @@ end
 
 class Card
   SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-  FACES = ['2', '3', '4', '5', '6', '7', '8', '9', '10',
+  FACES = [2, 3, 4, 5, 6, 7, 8, 9, 10,
            'Jack', 'Queen', 'King', 'Ace']
 
   def initialize(suit, face)
@@ -354,7 +354,7 @@ class Card
 
   def value
     case face
-    when '2'..'10' then face.to_i
+    when 2..10 then face
     when 'Jack', 'Queen', 'King' then 10
     when 'Ace' then 11
     end
@@ -386,6 +386,7 @@ class Game
   private
 
   attr_reader :player, :dealer, :deck
+  attr_accessor :winner
 
   def main_game
     loop do
@@ -393,6 +394,7 @@ class Game
       full_participant_turn(player)
       full_participant_turn(dealer) unless player.busted?
       display_final_hands
+      determine_winner
       display_winner
       break unless replay?
       reset
@@ -576,24 +578,24 @@ class Game
     end
   end
 
-  def detect_winner
-    if player.busted?
-      dealer
-    elsif dealer.busted?
-      player
-    else
-      compare_hands_winner
-    end
+  def determine_winner
+    self.winner = if player.busted?
+                    dealer
+                  elsif dealer.busted?
+                    player
+                  else
+                    compare_hands_winner
+                  end
   end
 
   def display_winner
     clear_screen
     prompt("That means the outcome of this game is...")
     pause_prompt
-    case detect_winner
-    when player then prompt("#{player} are the winner!")
-    when dealer then prompt("#{dealer} is the winner!")
-    when 'tie' then prompt("It's a tie!")
+    if winner == 'tie'
+      prompt("It's a tie!")
+    else
+      prompt("The winner is #{winner}!")
     end
     enter_to_continue
   end
